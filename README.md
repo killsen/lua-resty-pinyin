@@ -10,8 +10,8 @@ local pinyin = require "resty.pinyin"
 local str = [[中文拼音]]
 
 local fp, sp = pinyin.convert(str)
-ngx.say("全拼: ", _concat(fp, ", "))
-ngx.say("简拼: ", _concat(sp, ", "))
+ngx.say("全拼: ", table.concat(fp, ", "))
+ngx.say("简拼: ", table.concat(sp, ", "))
 
 ngx.update_time()
 local t1 = ngx.now() * 1000
