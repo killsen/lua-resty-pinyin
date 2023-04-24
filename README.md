@@ -1,23 +1,28 @@
-# 为lua创造的快速中文转拼音库
->Fast Chinese to Pinyin library for Lua
-## 安装使用指南
-使用luaroks安装
-`luarocks install pinyin`
-或者直接将pinyin.lua复制到您的项目或者LUA_PATH中
+# 中文转拼音库
 
-## 代码指南
-```lua
-local pinyin = require'pinyin'
-pinyin(chars, isString, separator)
-```
-@参数1为您要转换的字符串
-@参数2如果为true则返回字符串,否则返回为表
-@参数3为参数2的增加选项制定拼音间字符
+forked from [MissinA/pinyin](https://github.com/MissinA/pinyin)
 
 ## 代码示例
 ```lua
-local pinyin = require'pinyin'
-print(pinyin("你好世界", true, "-"))
---输出: ni-hao-shi-jie  n-h-s-j
+
+local pinyin = require "resty.pinyin"
+
+local str = [[中文拼音]]
+
+local fp, sp = pinyin.convert(str)
+ngx.say("全拼: ", _concat(fp, ", "))
+ngx.say("简拼: ", _concat(sp, ", "))
+
+ngx.update_time()
+local t1 = ngx.now() * 1000
+
+for _ = 1, 100000 do
+    pinyin.convert(str)
+end
+
+ngx.update_time()
+local t2 = ngx.now() * 1000
+
+ngx.say("耗时: ", t2 - t1, " ms")
+
 ```
->有两个返回值，第一个返回值为全部拼音，第二个为首拼.

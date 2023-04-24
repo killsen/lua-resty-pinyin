@@ -1,3 +1,6 @@
+
+--- data : map<string>
+
 local data = {
     a = '阿啊呵腌嗄锕錒',
     ai = '爱唉挨碍哀矮埃哎艾癌隘蔼嗳皑霭捱暧瑷娭砹锿嫒薆䔽㤅鴱㗨藹㕌磑礙硋䑂愛壒㘷叆靉䨠毐塧靄璦㱯䶣瞹䀳濭溰溾曖昹啀噯嘊㗒㝶䝽敱敳賹懓懝㢊銰鑀鱫鎄皧皚馤躷䅬㿄凒娾嬡伌㑸僾餲䬵譪譺',
@@ -404,94 +407,4 @@ local data = {
     zuo = '作做坐左座昨佐琢撮柞唑祚捽阼胙嘬怍酢笮葄葃蓙䔘苲莋㸲㝾䞰䎰咗㘀㘴岝岞䝫糳袏鈼㭮稓穝秨筰㛗㑅飵侳繓䋏'
 }
 
-local cclib = {
-    utf8 = {}
-}
-
-local utf8 = cclib.utf8
-
-function cclib.GetCharSize(char) --获取单个字符长度
-    if not char then
-        return 0
-    elseif char > 240 then
-        return 4
-    elseif char > 225 then
-        return 3
-    elseif char > 192 then
-        return 2
-    else
-        return 1
-    end
-end
-
-function cclib.utf8.len(str) --获取中文字符长度
-    local len = 0
-    local currentIndex = 1
-    while currentIndex <= #str do
-        local char = string.byte(str, currentIndex)
-        currentIndex = currentIndex + cclib.GetCharSize(char)
-        len = len + 1
-    end
-    return len
-end
-
-function cclib.utf8.sub(str, startChar, numChars) --截取中文字符串
-    local startIndex = 1
-    while startChar > 1 do
-        local char = string.byte(str, startIndex)
-        startIndex = startIndex + cclib.GetCharSize(char)
-        startChar = startChar - 1
-    end
-
-    local currentIndex = startIndex
-
-    while numChars > 0 and currentIndex <= #str do
-        local char = string.byte(str, currentIndex)
-        currentIndex = currentIndex + cclib.GetCharSize(char)
-        numChars = numChars - 1
-    end
-
-    return string.sub(str, startIndex, currentIndex - 1)
-end
-
-local pyTable = {}
-
-function getPyTable()
-    for k, v in pairs(data) do
-        for i = 1, utf8.len(v) do
-            local char = utf8.sub(v, i, 1)
-            --要寻找的字符串
-            pyTable[char] = k
-        end
-    end
-end
-getPyTable()
-
-function pinyin(chars, isString, separator)
-    separator = separator or ' '
-    local pinyin, sp = {}, {}
-    for i = 1, utf8.len(chars) do
-        local char = utf8.sub(chars, i, 1)
-        --要寻找的字符串
-        if string.len(char) == 1 then
-            pinyin[i] = char
-            sp[i] = char
-        else
-            pinyin[i] = pyTable[char]
-            sp[i] = string.sub(pinyin[i], 1, 1)
-        end
-    end
-    if isString then
-        return table.concat(pinyin, separator), table.concat(sp, separator)
-    else
-        return pinyin, sp
-    end
-end
--- 速度测试
--- local begin = os.clock()
--- for i = 1, 50000 do
---     pinyin('速度测试')
--- end
--- print(string.format('total time:%.2fms\n', ((os.clock() - begin) * 1000)))
--- --output: total time:75.00ms
-return pinyin
+return data
