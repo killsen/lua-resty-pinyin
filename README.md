@@ -10,8 +10,8 @@ local pinyin = require "resty.pinyin"
 local str = [[汉字拼音]]
 
 local fp, sp = pinyin.convert(str)
-ngx.say("全拼: ", _concat(fp, ", "))
-ngx.say("简拼: ", _concat(sp, ", "))
+ngx.say("全拼: ", table.concat(fp, ", "))
+ngx.say("简拼: ", table.concat(sp, ", "))
 
 ngx.update_time()
 local t1 = ngx.now() * 1000
@@ -33,7 +33,7 @@ ngx.say("按拼音排序")
 table.sort(names, pinyin.compare)
 
 for i, name in ipairs(names) do
-    local py = _concat(pinyin.convert(name), ", ")
+    local py = table.concat(pinyin.convert(name), ", ")
     ngx.say(i, ") ", name, " : ", py)
 end
 
