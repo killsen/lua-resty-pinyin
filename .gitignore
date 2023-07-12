@@ -4,7 +4,6 @@ _t.lua
 lua_modules
 lua_types
 *.zip
-*.json
 *.csv
 
 site/*
