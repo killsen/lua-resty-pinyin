@@ -1,13 +1,13 @@
 
 -- 为lua创造的快速中文转拼音库
--- forked from https://github.com/MissinA/pinyin
+-- https://github.com/MissinA/pinyin
 
 local _sub      = string.sub
 local _byte     = string.byte
 local _newt     = table.new
 local _concat   = table.concat
 
-local __ = { _VERSION = "1.0.0" }
+local __ = { _VERSION = "1.0.1" }
 
 -- utf8字符串迭代器
 local function ichars(str)
@@ -63,6 +63,52 @@ local function load_pinyin_map()
 
 end
 
+-- 按拼音比较字符串大小
+__.compare = function(str1, str2)
+-- @str1    : string
+-- @str2    : string
+-- @return  : boolean
+
+    if str1 == str2 then return nil end
+
+    if type(str1) ~= "string" or type(str2) ~= "string" then
+        return nil
+    end
+
+    local map = load_pinyin_map()
+
+    local iter1 = ichars(str1)
+    local iter2 = ichars(str2)
+
+    while true do
+        local _, c1 = iter1()
+        local _, c2 = iter2()
+
+        if not c1 and c2 then
+            return true
+        elseif c1 and not c2 then
+            return false
+        elseif not c1 and not c2 then
+            return nil
+        end
+
+        if #c1 ~= #c2 then
+            return #c1 < #c2
+        end
+
+        if c1 ~= c2 then
+            local py1 = map[c1] or c1
+            local py2 = map[c2] or c2
+            if py1 ~= py2 then
+                return py1 < py2
+            else
+                return c1 < c2
+            end
+        end
+    end
+
+end
+
 -- 返回全拼及简拼
 __.convert = function(str)
 -- @str     : string
@@ -95,7 +141,7 @@ end
 -- 测试
 __._TESTING = function()
 
-    local str = [[中文拼音]]
+    local str = [[汉字拼音]]
 
     local fp, sp = __.convert(str)
     ngx.say("全拼: ", _concat(fp, ", "))
@@ -111,7 +157,23 @@ __._TESTING = function()
     ngx.update_time()
     local t2 = ngx.now() * 1000
 
-    ngx.say("耗时: ", t2 - t1, " ms")
+    ngx.say("转换十万次耗时: ", t2 - t1, " ms")
+
+    local names = {
+        "武三", "吴三", "吴四", "武四"
+    }
+
+    table.sort(names, __.compare)
+
+    for i, name in ipairs(names) do
+        local py = _concat(__.convert(name), ", ")
+        ngx.say(i, ") ", name, " : ", py)
+    end
+
+    -- 1) 吴三 : wu, san
+    -- 2) 吴四 : wu, si
+    -- 3) 武三 : wu, san
+    -- 4) 武四 : wu, si
 
 end
 
