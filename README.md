@@ -7,11 +7,11 @@ forked from [MissinA/pinyin](https://github.com/MissinA/pinyin)
 
 local pinyin = require "resty.pinyin"
 
-local str = [[中文拼音]]
+local str = [[汉字拼音]]
 
 local fp, sp = pinyin.convert(str)
-ngx.say("全拼: ", table.concat(fp, ", "))
-ngx.say("简拼: ", table.concat(sp, ", "))
+ngx.say("全拼: ", _concat(fp, ", "))
+ngx.say("简拼: ", _concat(sp, ", "))
 
 ngx.update_time()
 local t1 = ngx.now() * 1000
@@ -23,6 +23,23 @@ end
 ngx.update_time()
 local t2 = ngx.now() * 1000
 
-ngx.say("耗时: ", t2 - t1, " ms")
+ngx.say("转换十万次耗时: ", t2 - t1, " ms")
+
+local names = {
+    "武三", "吴三", "吴四", "武四"
+}
+
+ngx.say("按拼音排序")
+table.sort(names, pinyin.compare)
+
+for i, name in ipairs(names) do
+    local py = _concat(pinyin.convert(name), ", ")
+    ngx.say(i, ") ", name, " : ", py)
+end
+
+-- 1) 吴三 : wu, san
+-- 2) 吴四 : wu, si
+-- 3) 武三 : wu, san
+-- 4) 武四 : wu, si
 
 ```
